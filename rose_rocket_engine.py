@@ -12,6 +12,8 @@ from gmail_draft_creator import create_gmail_draft
 COOLDOWN_FILE = Path("feature_cooldowns.json")
 DEFAULT_COOLDOWN_DAYS = 7
 FORCE_EDITION_ENV = "FORCE_EDITION"
+DRY_RUN_ENV = "DRY_RUN"
+OUTPUT_DIR = Path("output")
 
 # Runs before final newsletter output is accepted.
 BANNED_WORDS = [
@@ -35,6 +37,10 @@ def _now_local() -> datetime:
 def _today_utc() -> datetime:
     # Kept for backward compatibility in case other modules call it.
     return datetime.utcnow()
+
+
+def _is_truthy_env(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
 
 
 def _load_cooldowns() -> Dict[str, Dict[str, str]]:
@@ -99,8 +105,7 @@ def _edition_for_today() -> str:
     Returns the scheduled edition for today.
     If FORCE_EDITION env var is truthy, bypass schedule gate for test runs.
     """
-    force = os.getenv(FORCE_EDITION_ENV, "").strip().lower()
-    if force in {"1", "true", "yes", "on"}:
+    if _is_truthy_env(FORCE_EDITION_ENV):
         return "Forced Test Edition"
 
     weekday = _now_local().weekday()  # Monday=0 ... Sunday=6 (LOCAL TIME)
@@ -156,13 +161,30 @@ def generate_newsletter_text() -> str:
     return text
 
 
+def _save_dry_run_output(subject: str, body: str) -> Path:
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    filename = f"newsletter-{_now_local().date().isoformat()}.md"
+    path = OUTPUT_DIR / filename
+    path.write_text(f"# {subject}\n\n{body}\n", encoding="utf-8")
+    return path
+
+
 def run() -> None:
     edition_name = _edition_for_today()
     body = generate_newsletter_text()
 
     subject = f"Rose Rocket Engine — {edition_name} — {_now_local().date().isoformat()}"
-    draft_id = create_gmail_draft(subject=subject, body=body)
 
+    if _is_truthy_env(DRY_RUN_ENV):
+        output_path = _save_dry_run_output(subject, body)
+        print("DRY_RUN enabled: skipping Gmail draft creation.")
+        print(f"Saved output to: {output_path}")
+        print("\n--- BEGIN NEWSLETTER ---\n")
+        print(body)
+        print("\n--- END NEWSLETTER ---")
+        return
+
+    draft_id = create_gmail_draft(subject=subject, body=body)
     print(f"Draft created successfully: {draft_id}")
 
 

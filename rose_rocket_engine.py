@@ -13,7 +13,9 @@ COOLDOWN_FILE = Path("feature_cooldowns.json")
 DEFAULT_COOLDOWN_DAYS = 7
 FORCE_EDITION_ENV = "FORCE_EDITION"
 DRY_RUN_ENV = "DRY_RUN"
+OFFLINE_DRY_RUN_ENV = "OFFLINE_DRY_RUN"
 OUTPUT_DIR = Path("output")
+MOCK_STORIES_PATH = Path("fixtures/mock_stories.json")
 
 # Runs before final newsletter output is accepted.
 BANNED_WORDS = [
@@ -135,13 +137,65 @@ Output sections:
 """.strip()
 
 
+def _load_mock_stories() -> List[Dict[str, str]]:
+    if MOCK_STORIES_PATH.exists():
+        data = json.loads(MOCK_STORIES_PATH.read_text(encoding="utf-8"))
+        stories = data.get("stories", []) if isinstance(data, dict) else data
+        if isinstance(stories, list) and stories:
+            normalized = []
+            for item in stories:
+                if isinstance(item, dict) and "title" in item and "url" in item:
+                    normalized.append({"title": str(item["title"]), "url": str(item["url"])})
+            if normalized:
+                return normalized
+
+    return [
+        {"title": "Open-source eval harnesses are becoming standard AI stack components", "url": "https://example.com/story/eval-harnesses"},
+        {"title": "Founders adopt small-model routing to cut inference spend", "url": "https://example.com/story/model-routing"},
+        {"title": "Structured output validation reduces production incident rates", "url": "https://example.com/story/structured-validation"},
+        {"title": "Teams operationalize weekly prompt review rituals", "url": "https://example.com/story/prompt-rituals"},
+        {"title": "LLM-powered triage assistants improve support response times", "url": "https://example.com/story/support-triage"},
+    ]
+
+
+def _generate_offline_newsletter_text(edition_name: str, feature: str, stories: List[Dict[str, str]]) -> str:
+    top = stories[:5]
+    summaries = "\n".join(
+        f"- **{s['title']}** — Practical signal for operators. Source: {s['url']}" for s in top
+    )
+
+    return f"""## {edition_name}
+
+Quick offline simulation edition for local testing and prompt-tuning.
+
+### Curated stories
+{summaries}
+
+### {feature}
+Use a planner → executor prompt split in one workflow this week and compare output quality.
+
+### Actionable takeaways
+1. Automate one repeatable workflow to ~60% before human approval.
+2. Add one feedback capture point to your core AI output.
+3. Use model-tier routing to reduce latency/cost.
+4. Validate structured outputs before downstream actions.
+""".strip()
+
+
 def generate_newsletter_text() -> str:
+    edition_name = _edition_for_today()
+    feature = _select_feature_for_today()
+
+    if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
+        stories = _load_mock_stories()
+        text = _generate_offline_newsletter_text(edition_name, feature, stories)
+        _validate_content_filter(text)
+        return text
+
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise EnvironmentError("Missing required environment variable: GEMINI_API_KEY")
 
-    edition_name = _edition_for_today()
-    feature = _select_feature_for_today()
     stories = fetch_hn_ai_stories(limit=10)
 
     if not stories:
@@ -174,6 +228,15 @@ def run() -> None:
     body = generate_newsletter_text()
 
     subject = f"Rose Rocket Engine — {edition_name} — {_now_local().date().isoformat()}"
+
+    if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
+        output_path = _save_dry_run_output(subject, body)
+        print("OFFLINE_DRY_RUN enabled: skipping Gemini and Gmail API calls.")
+        print(f"Saved output to: {output_path}")
+        print("\n--- BEGIN NEWSLETTER ---\n")
+        print(body)
+        print("\n--- END NEWSLETTER ---")
+        return
 
     if _is_truthy_env(DRY_RUN_ENV):
         output_path = _save_dry_run_output(subject, body)

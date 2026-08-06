@@ -11,6 +11,7 @@ from gmail_draft_creator import create_gmail_draft
 
 COOLDOWN_FILE = Path("feature_cooldowns.json")
 DEFAULT_COOLDOWN_DAYS = 7
+FORCE_EDITION_ENV = "FORCE_EDITION"
 
 # Runs before final newsletter output is accepted.
 BANNED_WORDS = [
@@ -88,6 +89,14 @@ def _validate_content_filter(text: str) -> None:
 
 
 def _edition_for_today() -> str:
+    """
+    Returns the scheduled edition for today.
+    If FORCE_EDITION env var is truthy, bypass schedule gate for test runs.
+    """
+    force = os.getenv(FORCE_EDITION_ENV, "").strip().lower()
+    if force in {"1", "true", "yes", "on"}:
+        return "Forced Test Edition"
+
     weekday = _today_utc().weekday()  # Monday=0 ... Sunday=6
     if weekday not in EDITION_ROUTING:
         raise RuntimeError("Publishing is only scheduled for Monday/Wednesday/Friday.")

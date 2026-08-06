@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Environment variable files
+.env
+.env.*
+!.env.example
+
+# OAuth / credentials / local auth state
+credentials.json
+token.json
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store

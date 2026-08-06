@@ -27,7 +27,13 @@ EDITION_ROUTING = {
 }
 
 
+def _now_local() -> datetime:
+    """Local wall-clock time from OS timezone settings."""
+    return datetime.now()
+
+
 def _today_utc() -> datetime:
+    # Kept for backward compatibility in case other modules call it.
     return datetime.utcnow()
 
 
@@ -43,7 +49,7 @@ def _save_cooldowns(data: Dict[str, Dict[str, str]]) -> None:
 
 def _days_since(date_str: str) -> int:
     previous = datetime.fromisoformat(date_str)
-    return (_today_utc() - previous).days
+    return (_now_local() - previous).days
 
 
 def _eligible_features(cooldowns: Dict[str, Dict[str, str]], candidates: List[str]) -> List[str]:
@@ -76,7 +82,7 @@ def _select_feature_for_today() -> str:
         eligible = candidates
 
     selected = eligible[0]
-    cooldowns.setdefault("last_used", {})[selected] = _today_utc().isoformat()
+    cooldowns.setdefault("last_used", {})[selected] = _now_local().isoformat()
     _save_cooldowns(cooldowns)
     return selected
 
@@ -97,7 +103,7 @@ def _edition_for_today() -> str:
     if force in {"1", "true", "yes", "on"}:
         return "Forced Test Edition"
 
-    weekday = _today_utc().weekday()  # Monday=0 ... Sunday=6
+    weekday = _now_local().weekday()  # Monday=0 ... Sunday=6 (LOCAL TIME)
     if weekday not in EDITION_ROUTING:
         raise RuntimeError("Publishing is only scheduled for Monday/Wednesday/Friday.")
     return EDITION_ROUTING[weekday]
@@ -154,7 +160,7 @@ def run() -> None:
     edition_name = _edition_for_today()
     body = generate_newsletter_text()
 
-    subject = f"Rose Rocket Engine — {edition_name} — {_today_utc().date().isoformat()}"
+    subject = f"Rose Rocket Engine — {edition_name} — {_now_local().date().isoformat()}"
     draft_id = create_gmail_draft(subject=subject, body=body)
 
     print(f"Draft created successfully: {draft_id}")

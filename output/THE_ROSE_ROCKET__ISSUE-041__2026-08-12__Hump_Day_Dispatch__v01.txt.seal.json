@@ -1,0 +1,19 @@
+{
+  "file": "THE_ROSE_ROCKET__ISSUE-041__2026-08-12__Hump_Day_Dispatch__v01.txt",
+  "sha256": "2861ac87a8fc0c99ea8468d1fa07b29b545d7ebe413b55f5f9cb79ecb696ab62",
+  "bytes": 27050,
+  "chars": 27050,
+  "issue": 41,
+  "edition": "Hump Day Dispatch / Pixel 11 Special / AI On-Device",
+  "date": "2026-08-12",
+  "timezone": "America/Los_Angeles",
+  "sealed_at": "2026-08-12T23:38:03.831906+00:00",
+  "pipeline": "Rose Rocket Build SOP v1.1 + AI_WEEKLY_RHYTHM_v1",
+  "recipient_overrides": [
+    "no candy",
+    "no workouts",
+    "no from your person",
+    "daily AI brief",
+    "weekly AI deep dive rotation"
+  ]
+}

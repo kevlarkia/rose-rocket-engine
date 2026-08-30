@@ -14,6 +14,7 @@ Automated AI newsletter scaffold with:
 - `gmail_draft_creator.py` — Gmail draft creation module
 - `feature_cooldowns.json` — persisted legacy feature rotation state
 - `fixtures/mock_stories.json` — deterministic local stories for offline mode
+- `output/rose-rocket-2026-08-14-rocket-report.md` — Friday 2026-08-14 Rocket Report (AI deep dive draft; Candy Market and Get Fit omitted)
 - `requirements.txt` — pinned Python dependencies
 
 ## Requirements

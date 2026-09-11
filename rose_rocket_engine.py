@@ -14,10 +14,10 @@ DEFAULT_COOLDOWN_DAYS = 7
 FORCE_EDITION_ENV = "FORCE_EDITION"
 DRY_RUN_ENV = "DRY_RUN"
 OFFLINE_DRY_RUN_ENV = "OFFLINE_DRY_RUN"
+TODAYS_ISSUE_ENV = "TODAYS_ISSUE"
 OUTPUT_DIR = Path("output")
 MOCK_STORIES_PATH = Path("fixtures/mock_stories.json")
 
-# Runs before final newsletter output is accepted.
 BANNED_WORDS = [
     "slur-example-1",
     "slur-example-2",
@@ -32,12 +32,10 @@ EDITION_ROUTING = {
 
 
 def _now_local() -> datetime:
-    """Local wall-clock time from OS timezone settings."""
     return datetime.now()
 
 
 def _today_utc() -> datetime:
-    # Kept for backward compatibility in case other modules call it.
     return datetime.utcnow()
 
 
@@ -81,14 +79,10 @@ def _select_feature_for_today() -> str:
         "AI Ops Shortcut",
         "Growth Experiment",
     ]
-
     cooldowns = _load_cooldowns()
     eligible = _eligible_features(cooldowns, candidates)
-
-    # Fallback if all are in cooldown.
     if not eligible:
         eligible = candidates
-
     selected = eligible[0]
     cooldowns.setdefault("last_used", {})[selected] = _now_local().isoformat()
     _save_cooldowns(cooldowns)
@@ -103,14 +97,11 @@ def _validate_content_filter(text: str) -> None:
 
 
 def _edition_for_today() -> str:
-    """
-    Returns the scheduled edition for today.
-    If FORCE_EDITION env var is truthy, bypass schedule gate for test runs.
-    """
+    if _is_truthy_env(TODAYS_ISSUE_ENV):
+        return "Today's Issue"
     if _is_truthy_env(FORCE_EDITION_ENV):
         return "Forced Test Edition"
-
-    weekday = _now_local().weekday()  # Monday=0 ... Sunday=6 (LOCAL TIME)
+    weekday = _now_local().weekday()
     if weekday not in EDITION_ROUTING:
         raise RuntimeError("Publishing is only scheduled for Monday/Wednesday/Friday.")
     return EDITION_ROUTING[weekday]
@@ -148,7 +139,6 @@ def _load_mock_stories() -> List[Dict[str, str]]:
                     normalized.append({"title": str(item["title"]), "url": str(item["url"])})
             if normalized:
                 return normalized
-
     return [
         {"title": "Open-source eval harnesses are becoming standard AI stack components", "url": "https://example.com/story/eval-harnesses"},
         {"title": "Founders adopt small-model routing to cut inference spend", "url": "https://example.com/story/model-routing"},
@@ -161,9 +151,8 @@ def _load_mock_stories() -> List[Dict[str, str]]:
 def _generate_offline_newsletter_text(edition_name: str, feature: str, stories: List[Dict[str, str]]) -> str:
     top = stories[:5]
     summaries = "\n".join(
-        f"- **{s['title']}** — Practical signal for operators. Source: {s['url']}" for s in top
+        f"- **{s['title']}** \u2014 Practical signal for operators. Source: {s['url']}" for s in top
     )
-
     return f"""## {edition_name}
 
 Quick offline simulation edition for local testing and prompt-tuning.
@@ -185,32 +174,24 @@ Use a planner → executor prompt split in one workflow this week and compare ou
 def generate_newsletter_text() -> str:
     edition_name = _edition_for_today()
     feature = _select_feature_for_today()
-
     if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
         stories = _load_mock_stories()
         text = _generate_offline_newsletter_text(edition_name, feature, stories)
         _validate_content_filter(text)
         return text
-
     api_key = os.getenv("GEMINI_API_KEY")
     if not api_key:
         raise EnvironmentError("Missing required environment variable: GEMINI_API_KEY")
-
     stories = fetch_hn_ai_stories(limit=10)
-
     if not stories:
         raise RuntimeError("No AI-related stories found on Hacker News.")
-
     genai.configure(api_key=api_key)
     model = genai.GenerativeModel("gemini-1.5-flash")
-
     prompt = _assemble_prompt(edition_name, feature, stories)
     response = model.generate_content(prompt)
     text = response.text or ""
-
     if len(text) > 30000:
         text = text[:29900] + "\n\n[Truncated to remain under 30,000 characters]"
-
     _validate_content_filter(text)
     return text
 
@@ -224,11 +205,23 @@ def _save_dry_run_output(subject: str, body: str) -> Path:
 
 
 def run() -> None:
+    if _is_truthy_env(TODAYS_ISSUE_ENV):
+        from todays_issue import render_issue
+        body = render_issue(_now_local())
+        _validate_content_filter(body)
+        subject = f"Rose Rocket Engine \u2014 Today's Issue \u2014 {_now_local().date().isoformat()}"
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        path = OUTPUT_DIR / f"rose-rocket-{_now_local().date().isoformat()}-todays-issue.md"
+        path.write_text(f"# {subject}\n\n{body}\n", encoding="utf-8")
+        print("TODAYS_ISSUE lane: skipped HN / Gemini / Gmail.")
+        print(f"Saved output to: {path}")
+        print("\n--- BEGIN ISSUE ---\n")
+        print(body)
+        print("\n--- END ISSUE ---")
+        return
     edition_name = _edition_for_today()
     body = generate_newsletter_text()
-
-    subject = f"Rose Rocket Engine — {edition_name} — {_now_local().date().isoformat()}"
-
+    subject = f"Rose Rocket Engine \u2014 {edition_name} \u2014 {_now_local().date().isoformat()}"
     if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
         output_path = _save_dry_run_output(subject, body)
         print("OFFLINE_DRY_RUN enabled: skipping Gemini and Gmail API calls.")
@@ -237,7 +230,6 @@ def run() -> None:
         print(body)
         print("\n--- END NEWSLETTER ---")
         return
-
     if _is_truthy_env(DRY_RUN_ENV):
         output_path = _save_dry_run_output(subject, body)
         print("DRY_RUN enabled: skipping Gmail draft creation.")
@@ -246,7 +238,6 @@ def run() -> None:
         print(body)
         print("\n--- END NEWSLETTER ---")
         return
-
     draft_id = create_gmail_draft(subject=subject, body=body)
     print(f"Draft created successfully: {draft_id}")
 

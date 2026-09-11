@@ -1,13 +1,33 @@
 # Rose Rocket — Friday, September 11, 2026 — Deep Dive
 
+Status: Draft (not Validated Ready, not Sent)
+Issue Number: unset
+Vol: unset
+Filename: rose-rocket-2026-09-11-deep-dive.md
+Char Count: 4622 (ASCII copy-paste body only)
+SHA256: 4546aeacaf04f769f58bba52847e034726769dc6ae441a31a7e0a215ff5b4f14
 Lane: TODAYS_ISSUE / special column
-Subject: the podcast, the quit, the 10 percent
-Correction: OpenAI cofounder, not Anthropic
-Status: Draft
+Correction on file: OpenAI cofounder, not Anthropic
 
-Public lab resignations and published risk estimates only.
+## MANUAL_NOTION_ARCHIVE
 
-The question from Thursday mixed two real stories.
-This week: Jacob Coxon left Anthropic (ex-OpenAI). Evan Hubinger, still at Anthropic, said greater than 10 percent chance AI kills all humans within a decade.
-The cofounder: Ilya Sutskever left OpenAI in May 2024, superalignment team ended, founded Safe Superintelligence (SSI).
-10 percent is a judgment, not a forecast printout.
+Create a Draft row in Rose Rocket Issues with Headline: DEEP DIVE — the 10 percent and the cofounder. Date 2026-09-11. Format: Deep Dive. Status: Draft. Do not set Validated Ready or Sent To Marko.
+
+## ICSolutions Quick Pass v1.2
+
+Q1 Escape / contraband / security: NO
+Q2 Threats / violence / illegal coordination: NO
+Q3 Legal strategy / case / attorney work product: NO
+Q4 Specific criminal activity / investigation: NO
+Q5 Personal communication: YES
+Result: PASSABLE
+
+## SEALS
+
+- [x] Format lock: Friday Rocket jacket
+- [x] Draft seal: not Validated Ready, not Sent
+- [x] ICSolutions Quick Pass v1.2: PASSABLE
+- [x] Hash seal: SHA256 of ASCII body
+- [x] Archive block present
+- [ ] Validated Ready
+- [ ] Sent To Marko

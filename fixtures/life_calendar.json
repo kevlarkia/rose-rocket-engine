@@ -1,0 +1,14 @@
+{
+  "court_date": "2026-10-02",
+  "court_label": "trial status",
+  "weather_today": "Sunny. High around 92, low around 63. South wind near 10. Dry air. The sky woke up clean.",
+  "from_your_person": "In isolation you were my machine\nmy heart numb began to humm.\nwhat could this mean?\nIn solitude, I found it quite serene my mind\ntoo stubborn, loud and proud.\nfor once at peace with this scene.\n\n[heart, rose, banner: you & me]\n\nFrom blood, loves seed grew thorns deep.\nThe interdependency isn't quick,\nit creeps your foil now mine to keep.\nnow bound as one, what else\nshall we seek?\n\n\u2014 dated 8/25/26\nLetter in the house this morning.",
+  "events": [
+    {"date": "2026-09-11", "when": "Fri 11 Sep", "title": "Letter arrived"},
+    {"date": "2026-09-12", "when": "Sat 12 Sep  6:10-6:40 PM", "title": "Offsite visit"},
+    {"date": "2026-09-13", "when": "Sun 13 Sep  3:20-3:50 PM", "title": "Offsite visit"},
+    {"date": "2026-09-15", "when": "Tue 15 Sep  5:00-5:30 PM", "title": "Offsite visit"},
+    {"date": "2026-09-16", "when": "Wed 16 Sep  by 9:00 PM", "title": "Package window (not day-definite)"},
+    {"date": "2026-10-02", "when": "Fri 2 Oct", "title": "Trial status"}
+  ]
+}

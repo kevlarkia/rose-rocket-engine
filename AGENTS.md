@@ -1,6 +1,8 @@
 # AGENTS.md
 
-Rose Rocket Engine is a Python 3 CLI.
+Rose Rocket Engine is a Python 3 CLI for Rose Rocket 2.5, Clinton's newspaper for Marko on SmartInmate. It is not trucking software. Rules: `rose_rocket_v2.5/rules/CURRENT_RULES.md`.
+
+Silent omission: do not print production chatter in a reader copy. Never send to SmartInmate automatically. Clinton sends. Fail closed.
 
 Today's Issue lane (daily, no APIs):
 

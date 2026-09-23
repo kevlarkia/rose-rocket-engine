@@ -1,0 +1,16 @@
+{
+  "file": "payload.txt",
+  "sha256": "220d19d57a2cc8a9dd13ac65d33f4c590702fb846d927b59a65dad2e3b27f269",
+  "bytes": 21208,
+  "chars": 21208,
+  "lines": 549,
+  "issue": 176,
+  "vol": 1,
+  "edition": "Hump Day Dispatch",
+  "headline": "THE ROUTER IS PART OF THE MODEL",
+  "date": "2026-09-23",
+  "weekday": "Wednesday",
+  "timezone": "America/Los_Angeles",
+  "archive_status": "VALIDATED_READY",
+  "pipeline": "Rose Rocket 2.5"
+}

@@ -4,25 +4,31 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
 
-import google.generativeai as genai
-
 from ai_news_scraper import fetch_hn_ai_stories
+from builder_pipeline import (
+    assert_no_banned_words,
+    audit_touchpoints,
+    default_generate,
+    load_ritual,
+    run_automated_pipeline,
+    weekly_digest,
+    write_handoff,
+)
 from gmail_draft_creator import create_gmail_draft
 
-COOLDOWN_FILE = Path("feature_cooldowns.json")
+COOLDOWN_FILE = Path(os.getenv("COOLDOWN_FILE", "feature_cooldowns.json"))
 DEFAULT_COOLDOWN_DAYS = 7
 FORCE_EDITION_ENV = "FORCE_EDITION"
 DRY_RUN_ENV = "DRY_RUN"
 OFFLINE_DRY_RUN_ENV = "OFFLINE_DRY_RUN"
 TODAYS_ISSUE_ENV = "TODAYS_ISSUE"
-OUTPUT_DIR = Path("output")
+AUTO_SEND_ENV = "AUTO_SEND"
+REVIEW_DASHBOARD_ENV = "REVIEW_DASHBOARD"
+PROMPT_REVIEW_ENV = "PROMPT_REVIEW"
+MODEL_AUDIT_ENV = "MODEL_AUDIT"
+OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "output"))
+RITUAL_PATH = Path(os.getenv("RITUAL_PATH", "fixtures/prompt_review_ritual.json"))
 MOCK_STORIES_PATH = Path("fixtures/mock_stories.json")
-
-BANNED_WORDS = [
-    "slur-example-1",
-    "slur-example-2",
-    "clickbait",
-]
 
 EDITION_ROUTING = {
     0: "Monday Market Radar",
@@ -90,10 +96,7 @@ def _select_feature_for_today() -> str:
 
 
 def _validate_content_filter(text: str) -> None:
-    normalized = text.lower()
-    hits = [w for w in BANNED_WORDS if w.lower() in normalized]
-    if hits:
-        raise ValueError(f"Content filter blocked output due to banned words: {hits}")
+    assert_no_banned_words(text)
 
 
 def _edition_for_today() -> str:
@@ -105,27 +108,6 @@ def _edition_for_today() -> str:
     if weekday not in EDITION_ROUTING:
         raise RuntimeError("Publishing is only scheduled for Monday/Wednesday/Friday.")
     return EDITION_ROUTING[weekday]
-
-
-def _assemble_prompt(edition_name: str, feature: str, stories: List[Dict[str, str]]) -> str:
-    story_lines = "\n".join(f"- {s['title']} ({s['url']})" for s in stories)
-    return f"""
-You are writing the {edition_name} edition of Rose Rocket Engine.
-
-Constraints:
-- Keep output under 30,000 characters.
-- Crisp, operator-focused insights.
-- Include feature section: {feature}
-
-Source stories:
-{story_lines}
-
-Output sections:
-1) Opening hook
-2) 3-5 curated story summaries
-3) {feature}
-4) Actionable takeaways
-""".strip()
 
 
 def _load_mock_stories() -> List[Dict[str, str]]:
@@ -148,52 +130,38 @@ def _load_mock_stories() -> List[Dict[str, str]]:
     ]
 
 
-def _generate_offline_newsletter_text(edition_name: str, feature: str, stories: List[Dict[str, str]]) -> str:
-    top = stories[:5]
-    summaries = "\n".join(
-        f"- **{s['title']}** \u2014 Practical signal for operators. Source: {s['url']}" for s in top
+def build_newsletter_packet() -> dict:
+    """Automate story fetch through the content filter, then stop for review."""
+    edition_name = _edition_for_today()
+    feature = _select_feature_for_today()
+    offline = _is_truthy_env(OFFLINE_DRY_RUN_ENV)
+    if offline:
+        stories = _load_mock_stories()
+        generate_fn = None
+    else:
+        if not os.getenv("GEMINI_API_KEY"):
+            raise EnvironmentError("Missing required environment variable: GEMINI_API_KEY")
+        stories = fetch_hn_ai_stories(limit=10)
+        if not stories:
+            raise RuntimeError("No AI-related stories found on Hacker News.")
+        generate_fn = default_generate
+    packet = run_automated_pipeline(
+        edition_name,
+        feature,
+        stories,
+        offline=offline,
+        generate_fn=generate_fn,
+        escalation_dir=OUTPUT_DIR / "escalations",
+        now=_now_local(),
     )
-    return f"""## {edition_name}
-
-Quick offline simulation edition for local testing and prompt-tuning.
-
-### Curated stories
-{summaries}
-
-### {feature}
-Use a planner → executor prompt split in one workflow this week and compare output quality.
-
-### Actionable takeaways
-1. Automate one repeatable workflow to ~60% before human approval.
-2. Add one feedback capture point to your core AI output.
-3. Use model-tier routing to reduce latency/cost.
-4. Validate structured outputs before downstream actions.
-""".strip()
+    packet["subject"] = (
+        f"Rose Rocket Engine — {edition_name} — {_now_local().date().isoformat()}"
+    )
+    return packet
 
 
 def generate_newsletter_text() -> str:
-    edition_name = _edition_for_today()
-    feature = _select_feature_for_today()
-    if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
-        stories = _load_mock_stories()
-        text = _generate_offline_newsletter_text(edition_name, feature, stories)
-        _validate_content_filter(text)
-        return text
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        raise EnvironmentError("Missing required environment variable: GEMINI_API_KEY")
-    stories = fetch_hn_ai_stories(limit=10)
-    if not stories:
-        raise RuntimeError("No AI-related stories found on Hacker News.")
-    genai.configure(api_key=api_key)
-    model = genai.GenerativeModel("gemini-1.5-flash")
-    prompt = _assemble_prompt(edition_name, feature, stories)
-    response = model.generate_content(prompt)
-    text = response.text or ""
-    if len(text) > 30000:
-        text = text[:29900] + "\n\n[Truncated to remain under 30,000 characters]"
-    _validate_content_filter(text)
-    return text
+    return build_newsletter_packet()["markdown"]
 
 
 def _save_dry_run_output(subject: str, body: str) -> Path:
@@ -204,7 +172,23 @@ def _save_dry_run_output(subject: str, body: str) -> Path:
     return path
 
 
+def _print_newsletter(subject: str, body: str, note: str) -> Path:
+    output_path = _save_dry_run_output(subject, body)
+    print(note)
+    print(f"Saved output to: {output_path}")
+    print("\n--- BEGIN NEWSLETTER ---\n")
+    print(body)
+    print("\n--- END NEWSLETTER ---")
+    return output_path
+
+
 def run() -> None:
+    if _is_truthy_env(MODEL_AUDIT_ENV):
+        print(audit_touchpoints())
+        return
+    if _is_truthy_env(PROMPT_REVIEW_ENV):
+        print(weekly_digest(OUTPUT_DIR / "feedback" / "feedback.jsonl", load_ritual(RITUAL_PATH)))
+        return
     if _is_truthy_env(TODAYS_ISSUE_ENV):
         from todays_issue import render_issue
         body = render_issue(_now_local())
@@ -219,24 +203,43 @@ def run() -> None:
         print(body)
         print("\n--- END ISSUE ---")
         return
-    edition_name = _edition_for_today()
-    body = generate_newsletter_text()
-    subject = f"Rose Rocket Engine \u2014 {edition_name} \u2014 {_now_local().date().isoformat()}"
-    if _is_truthy_env(OFFLINE_DRY_RUN_ENV):
-        output_path = _save_dry_run_output(subject, body)
-        print("OFFLINE_DRY_RUN enabled: skipping Gemini and Gmail API calls.")
-        print(f"Saved output to: {output_path}")
-        print("\n--- BEGIN NEWSLETTER ---\n")
-        print(body)
-        print("\n--- END NEWSLETTER ---")
+
+    packet = build_newsletter_packet()
+    subject = packet["subject"]
+    body = packet["markdown"]
+    handoff_path = write_handoff(OUTPUT_DIR / "handoff", packet)
+    offline = _is_truthy_env(OFFLINE_DRY_RUN_ENV)
+    holds_send = offline or _is_truthy_env(DRY_RUN_ENV)
+    if offline:
+        note = "OFFLINE_DRY_RUN enabled: skipping Gemini and Gmail API calls."
+    elif packet["status"] == "fallback":
+        note = "Model step failed. Fallback copy is on the desk. See the admin queue."
+    else:
+        note = "Data processing finished. Human review comes next."
+    _print_newsletter(subject, body, note)
+    print(f"Handoff: {handoff_path}")
+    print("Human stages: " + ", ".join(packet["human_stages_remaining"]))
+    if packet.get("escalation"):
+        print(f"Admin queue: {packet['escalation']['path']}")
+
+    if _is_truthy_env(REVIEW_DASHBOARD_ENV):
+        from review_dashboard import serve_review, start_review_server
+
+        server = start_review_server(
+            handoff_path,
+            feedback_path=OUTPUT_DIR / "feedback" / "feedback.jsonl",
+            escalation_dir=OUTPUT_DIR / "escalations",
+            ritual_path=RITUAL_PATH,
+            port=int(os.getenv("REVIEW_PORT", "8765")),
+            send_fn=None if holds_send else create_gmail_draft,
+            dry_run=holds_send,
+        )
+        serve_review(server)
         return
-    if _is_truthy_env(DRY_RUN_ENV):
-        output_path = _save_dry_run_output(subject, body)
-        print("DRY_RUN enabled: skipping Gmail draft creation.")
-        print(f"Saved output to: {output_path}")
-        print("\n--- BEGIN NEWSLETTER ---\n")
-        print(body)
-        print("\n--- END NEWSLETTER ---")
+
+    auto_send = _is_truthy_env(AUTO_SEND_ENV) and not holds_send
+    if not auto_send or packet["status"] != "ready_for_review":
+        print("Gmail not called. Approve on REVIEW_DASHBOARD=1, or set AUTO_SEND=1 to skip the desk.")
         return
     draft_id = create_gmail_draft(subject=subject, body=body)
     print(f"Draft created successfully: {draft_id}")

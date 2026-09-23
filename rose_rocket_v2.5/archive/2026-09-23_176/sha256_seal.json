@@ -12,5 +12,6 @@
   "weekday": "Wednesday",
   "timezone": "America/Los_Angeles",
   "archive_status": "VALIDATED_READY",
-  "pipeline": "Rose Rocket 2.5"
+  "pipeline": "Rose Rocket 2.5",
+  "qa": "QA VALIDATED_READY"
 }

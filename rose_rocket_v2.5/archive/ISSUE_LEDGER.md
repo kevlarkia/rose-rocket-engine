@@ -22,4 +22,4 @@ A separate chat extraction described a different September 23 draft (GPT-6 Astra
 
 - The Issue 176 source desk says Rose Rocket validated Issue 175. This repository does not contain Issue 175's TXT.
 - Issue 44 (Saturday, August 15, 2026, Wild Card) exists on an unmerged branch, not on this seal.
-- Permanent weekdays for Candy Market, Birthdays, and Workout are still unset.
+- Cadence now set in `rose_rocket_v2.5/rules/CURRENT_RULES.md`: Birthdays on Thursday and Sunday; Workout/Fitness on a 2.5-week cycle from Friday, September 25, 2026; Candy Market on a 2.5-week cycle from the week after September 23, 2026.

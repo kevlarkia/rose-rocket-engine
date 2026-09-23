@@ -1,0 +1,15 @@
+ROSE ROCKET v2.5 — EXACT-FILE QA VALIDATION
+
+INPUT: Payload TXT string intended for delivery.
+
+CHECKLIST (PASS/FAIL):
+1. ASCII CHECK: Are all characters standard 7-bit ASCII?
+2. FLUSH-LEFT CHECK: Does every line start with a non-whitespace character?
+3. LENGTH CHECK: Is total character count strictly under 30,000?
+4. SILENT OMISSION CHECK: Is the text free of production terms ("NOT DUE", "SOURCE HOLD", etc.)?
+5. MUSIC SAFETY CHECK (Fridays): Are all lyrics free of SmartInmate trigger words?
+6. CREDENTIAL CHECK: Are all keys, tokens, and secrets absent?
+
+OUTPUT:
+- If all PASS: Return "QA VALIDATED_READY" and compute character count.
+- If any FAIL: State the exact line and rule violation. DO NOT SEAL.

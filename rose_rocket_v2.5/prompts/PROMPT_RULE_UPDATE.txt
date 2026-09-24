@@ -1,0 +1,12 @@
+ROSE ROCKET — CANONICAL RULE UPDATE
+
+Clinton is establishing a new permanent rule for the Rose Rocket v2.5 architecture.
+
+NEW RULE CONTEXT:
+[Insert new rule instruction here]
+
+INSTRUCTIONS FOR AI:
+1. Review existing CURRENT_RULES.md for conflicts with core constraints (30,000 char cap, 7-bit ASCII, flush-left).
+2. Flag any conflicts immediately.
+3. If valid, output updated CURRENT_RULES.md text and append changes to Rule Change Log.
+4. Do NOT generate a new newspaper issue.

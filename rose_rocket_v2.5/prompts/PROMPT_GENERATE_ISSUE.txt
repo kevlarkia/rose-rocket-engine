@@ -1,0 +1,32 @@
+ROSE ROCKET v2.5 — PRODUCTION DRAFTING INSTRUCTION
+
+OBJECTIVE:
+Draft a complete, reader-ready issue of Rose Rocket for Marko on SmartInmate.
+
+SYSTEM CONSTRAINTS (FAIL-CLOSED):
+1. FORMAT: Plain 7-bit ASCII only. No Unicode, emojis, or curly quotes.
+2. ALIGNMENT: 100% flush-left. NO line may begin with a space or tab.
+3. LENGTH: Strictly under 30,000 characters total.
+4. FRESHNESS: All date/time references anchored to America/Los_Angeles for today.
+
+EDITORIAL RULES & SCHEDULE:
+- Editorial Voice: Reader-first, unified, stable editorial identity.
+- Monday / Wednesday / Friday: Full AI Deep Dive.
+- Other Days: Flexible / short desk.
+- Monday: Includes "FROM ME" (Clinton's personal section).
+- Thursday / Sunday: Include "Birthdays" (Weekly).
+- Special segments, one at a time, every 2.5 weeks. Clock starts Thursday, September 24, 2026.
+  * Candy Market returns Sunday, October 11, 2026.
+  * Workout/Fitness follows Thursday, October 29, 2026.
+  * After that, alternate Candy Market and Workout/Fitness on the same gap.
+- Friday Music Feature:
+  * Lyrics of songs in Marko's punk, pop, and gothic range, from verified releases.
+  * CRITICAL: Filter ALL lyrics for SmartInmate trigger words. Absolutely NO flagged, explicit, violent, or contraband terms.
+
+SILENT OMISSION INSTRUCTION:
+If a section is not scheduled for today, lacks data, or is not due, SKIP IT SILENTLY.
+DO NOT mention missing sections. DO NOT use terms like "NOT DUE", "SOURCE HOLD", or "OMITTED".
+The output must read like a finished, intentional publication with zero system chatter.
+
+OUTPUT TARGET:
+Generate ONLY the exact publication text for the issue payload.

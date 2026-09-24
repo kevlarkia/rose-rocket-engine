@@ -1,6 +1,6 @@
 # AGENTS.md
 
-Rose Rocket Engine is a Python 3 CLI for Rose Rocket 2.5, Clinton's newspaper for Marko on SmartInmate. It is not trucking software. Rules: `rose_rocket_v2.5/rules/CURRENT_RULES.md`. The front door is the supercute.fyi shelf: `rose_rocket_v2.5/docs/FRONT_DOOR_HANDOFF.md`.
+Rose Rocket Engine is a Python 3 CLI for Rose Rocket 2.5, Clinton's newspaper for Marko on SmartInmate. It is one shelf, not the Scroll, and it is not trucking software. Rules: `rose_rocket_v2.5/rules/CURRENT_RULES.md`. The shelf tools are specified in `rose_rocket_v2.5/docs/FRONT_DOOR_HANDOFF.md`. The room, captured and not built, is `rose_rocket_v2.5/docs/SCROLL_CAPTURE.md`.
 
 Silent omission: do not print production chatter in a reader copy. Never send to SmartInmate automatically. Clinton sends. Fail closed.
 

@@ -5,7 +5,7 @@ Owner: Clinton.
 Reader of the paper: Marko.
 Host: supercute.fyi.
 
-The front door is the shelf. supercute.fyi is where that shelf is presented. Ms. Rocket stands on the shelf. The tools on that same shelf are for Clinton. Build those tools. Do not build a separate command-line product and call it the door.
+The front door is this shelf, not the room. The Scroll is Clinton's private operating layer. It is the room. supercute.fyi is where Ms. Rocket's shelf is presented. Ms. Rocket stands on the shelf. The tools on that same shelf are for Clinton. Build those tools. Do not build the Steward, do not brand the Scroll, and do not treat this shelf as the chassis. See `rose_rocket_v2.5/docs/SCROLL_CAPTURE.md`.
 
 Do not send anything. Do not open SmartInmate. Do not draft a newspaper while building the shelf.
 

@@ -48,13 +48,12 @@ Shows what today's paper owes, in America/Los_Angeles. This view is for Clinton.
 - Any other weekday: short AI desk.
 - Monday: FROM ME is due only when Clinton has supplied the text. The tool does not write it.
 - Thursday and Sunday: Birthdays are due only when a verified list is on file. Do not invent a birthday.
-- Friday: Music is lyrics and themes only, and only when a verified source and an approved trigger-word list both exist.
+- Friday: Music is lyrics of songs in the punk, pop, and gothic range, and only when a verified source and an approved trigger-word list both exist.
 - Research appears only when Clinton has filed research for that issue.
+- Specials alternate every 2.5 weeks from Thursday, September 24, 2026. Candy Market is due Sunday, October 11, 2026. Workout/Fitness is due Thursday, October 29, 2026. Then they keep alternating, one segment on each of those dates.
 
-Fail closed on the unpinned rotations:
+Fail closed where Clinton has not filed the source:
 
-- Workout/Fitness is anchored Friday, September 25, 2026. The cycle length is still 17 or 18 days, not one number. Until Clinton sets `CYCLE_DAYS` in the rules, leave Workout off the paper, including on the anchor date.
-- Candy Market's first day is not named. "The week after September 23, 2026" is not a date. Until Clinton sets `CANDY_ANCHOR`, leave Candy Market off the paper.
 - There is no approved trigger-word list. Do not write one. Until Clinton adds `rose_rocket_v2.5/rules/SMARTINMATE_TRIGGER_WORDS.txt`, leave Friday music off the paper.
 
 The slate may tell Clinton a section was left off. The payload may not contain `NOT DUE`, `SOURCE HOLD`, `NOT VERIFIED`, or `OMITTED`.
@@ -124,6 +123,6 @@ Use `unittest`. No network.
 
 - A supercute.fyi login, page design beyond the shelf, or any host API that is not in this repo.
 - SmartInmate login, recipient selection, composer staging, credit use, or send.
-- Choosing `CYCLE_DAYS` or the first Candy Market date.
+- Changing the September 24, 2026 special-segment clock.
 - Inventing Marko's memories, playlists, birthdays, or FROM ME.
 - Rewriting Issue 176.

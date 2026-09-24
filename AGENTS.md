@@ -4,7 +4,7 @@ Rose Rocket Engine is a Python 3 CLI for Rose Rocket 2.5, Clinton's newspaper fo
 
 Silent omission: do not print production chatter in a reader copy. Never send to SmartInmate automatically. Clinton sends. Fail closed.
 
-Cadence: full AI Deep Dive on Monday, Wednesday, and Friday. FROM ME on Monday, written by Clinton. Birthdays on Thursday and Sunday. Friday music is lyrics and themes only, from verified Punk, Goth, Pop-Punk, and Alternative preferences, with no SmartInmate trigger words. Workout/Fitness starts Friday, September 25, 2026, on a 2.5-week cycle. Candy Market starts the following week on that same cycle.
+Cadence: full AI Deep Dive on Monday, Wednesday, and Friday. FROM ME on Monday, written by Clinton. Birthdays on Thursday and Sunday. Friday music is lyrics of songs in Marko's punk, pop, and gothic range, with no SmartInmate trigger words. From Thursday, September 24, 2026, Candy Market and Workout/Fitness alternate every 2.5 weeks, one at a time. Candy Market returns Sunday, October 11, 2026. Workout/Fitness follows Thursday, October 29, 2026.
 
 Today's Issue lane (daily, no APIs):
 

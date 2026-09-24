@@ -101,6 +101,25 @@ class ShelfTests(unittest.TestCase):
         self.assertIn("full AI Deep Dive", slate["on_paper"])
         self.assertNotIn("Music", slate["on_paper"])
         self.assertNotIn("Workout/Fitness", slate["on_paper"])
+        self.assertNotIn("Candy Market", slate["on_paper"])
+
+    def test_specials_alternate_every_two_and_a_half_weeks(self):
+        start = day_slate(date(2026, 9, 24))
+        candy = day_slate(date(2026, 10, 11))
+        workout = day_slate(date(2026, 10, 29))
+        candy_again = day_slate(date(2026, 11, 15))
+        workout_again = day_slate(date(2026, 12, 3))
+        between = day_slate(date(2026, 10, 12))
+        self.assertNotIn("Candy Market", start["on_paper"])
+        self.assertNotIn("Workout/Fitness", start["on_paper"])
+        self.assertIn("Candy Market", candy["on_paper"])
+        self.assertNotIn("Workout/Fitness", candy["on_paper"])
+        self.assertIn("Workout/Fitness", workout["on_paper"])
+        self.assertNotIn("Candy Market", workout["on_paper"])
+        self.assertIn("Candy Market", candy_again["on_paper"])
+        self.assertIn("Workout/Fitness", workout_again["on_paper"])
+        self.assertNotIn("Candy Market", between["on_paper"])
+        self.assertNotIn("Workout/Fitness", between["on_paper"])
 
     def test_seal_refuses_issue_176(self):
         before = (ROOT / "rose_rocket_v2.5/archive/2026-09-23_176/payload.txt").read_bytes()

@@ -22,4 +22,8 @@ A separate chat extraction described a different September 23 draft (GPT-6 Astra
 
 - The Issue 176 source desk says Rose Rocket validated Issue 175. This repository does not contain Issue 175's TXT.
 - Issue 44 (Saturday, August 15, 2026, Wild Card) exists on an unmerged branch, not on this seal.
-- Cadence now set in `rose_rocket_v2.5/rules/CURRENT_RULES.md`: Birthdays on Thursday and Sunday; Workout/Fitness on a 2.5-week cycle from Friday, September 25, 2026; Candy Market on a 2.5-week cycle from the week after September 23, 2026.
+- Earlier cadence note, superseded September 24, 2026: Workout/Fitness from Friday, September 25, 2026, and Candy Market the week after September 23, 2026.
+
+## Cadence set September 24, 2026
+
+Clinton started the special-segment clock on this day. Candy Market returns Sunday, October 11, 2026. Workout/Fitness follows on Thursday, October 29, 2026. After that, those two segments alternate every 2.5 weeks, one at a time. Friday music is lyrics of songs in the punk, pop, and gothic range. No trigger-word list was filed with this decision.

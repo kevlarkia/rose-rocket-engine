@@ -22,12 +22,13 @@
 - Other days: Flexible / short AI desk.
 - Monday: Includes "FROM ME" (Clinton's personal section). Written by Clinton. The model may lightly polish it and must never ghostwrite from memory or inference.
 - Thursday / Sunday: Includes "Birthdays" (weekly feature).
-- Staggered 2.5-week rotation (about 17-18 days of calendar drift):
-  - Workout/Fitness (Category A): active on a 2.5-week cycle, starting Friday, September 25, 2026.
-  - Candy Market (Category B): active on a 2.5-week cycle, starting the week after September 23, 2026.
+- Special segments, one at a time, every 2.5 weeks. The clock starts Thursday, September 24, 2026. 2.5 weeks is 17 days and 12 hours. The segment is due on the America/Los_Angeles publication date that contains that moment.
+  - Candy Market returns first, on Sunday, October 11, 2026.
+  - Workout/Fitness follows 2.5 weeks after that candy, on Thursday, October 29, 2026.
+  - The same gap then alternates Candy Market and Workout/Fitness. The other segment stays off the paper.
 - Friday Music Feature:
-  - Sourced only from verified Marko playlists or documented preferences in Punk, Goth, Pop-Punk, and Alternative.
-  - Lyrics and themes only. No audio files.
+  - The music is lyrics of songs in Marko's punk, pop, and gothic range.
+  - Sourced only from a verified playlist or a documented preference. No audio files.
   - SmartInmate safety filter: lyrics must not contain scanner trigger words (no violent, explicit, contraband, or security-flagged language).
 - Research Feature: Floats and continues across issues when it is useful.
 

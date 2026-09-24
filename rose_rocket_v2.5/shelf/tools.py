@@ -12,6 +12,8 @@ from zoneinfo import ZoneInfo
 
 LA = ZoneInfo("America/Los_Angeles")
 CHAR_CAP = 30000
+# Thursday, September 24, 2026. Two specials share a 5-week span, so each step is 17.5 days.
+SPECIAL_ANCHOR = date(2026, 9, 24)
 PRODUCTION_TERMS = ("NOT DUE", "SOURCE HOLD", "NOT VERIFIED", "OMITTED")
 CREDENTIAL_MARKERS = ("API_KEY", "PASSWORD", "BEGIN PRIVATE", "sk-", "token.json")
 ISSUE_176_DIR = "2026-09-23_176"
@@ -81,11 +83,6 @@ def day_slate(
     if str(held.get("research") or "").strip():
         on_paper.append("Research")
 
-    if "Workout/Fitness" not in owed:
-        left_off.append("Workout/Fitness: CYCLE_DAYS is not set")
-    if "Candy Market" not in owed:
-        left_off.append("Candy Market: CANDY_ANCHOR is not set")
-
     return {
         "date": day.isoformat(),
         "weekday": day.strftime("%A"),
@@ -107,7 +104,27 @@ def _owed(day: date) -> list:
         sections.append("Birthdays")
     if day.weekday() == 4:
         sections.append("Music")
+    special = special_segment(day)
+    if special:
+        sections.append(special)
     return sections
+
+
+def special_segment(day: date) -> Optional[str]:
+    """The one special due on this date, if this date is its turn.
+
+    Odd steps are Candy Market, starting October 11, 2026.
+    Even steps are Workout/Fitness, starting October 29, 2026.
+    """
+    delta = (day - SPECIAL_ANCHOR).days
+    if delta <= 0:
+        return None
+    step = (4 * delta + 35) // 70
+    if step < 1 or (35 * step) // 2 != delta:
+        return None
+    if step % 2:
+        return "Candy Market"
+    return "Workout/Fitness"
 
 
 def _trigger_list_path(rules_dir: Optional[Path]) -> Path:

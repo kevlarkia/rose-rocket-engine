@@ -6,7 +6,7 @@ Ms. Rocket is the sealed paper. These tools are Clinton's. None of them send.
 
 Clinton reads what one America/Los_Angeles date owes.
 Inputs: publication date, optional drawer, optional FROM ME text.
-Refuses to write a reader copy, invent a birthday, choose the workout cycle length, name the first Candy Market day, or write a trigger-word list.
+Refuses to write a reader copy, invent a birthday, put Candy Market or Workout/Fitness on a date that is not its turn, or write a trigger-word list.
 
 ## from_me
 

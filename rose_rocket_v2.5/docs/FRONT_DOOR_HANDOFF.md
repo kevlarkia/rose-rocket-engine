@@ -36,7 +36,7 @@ One surface. Two kinds of things on it.
 1. Ms. Rocket: the current sealed payload, its issue number, its date, and its delivery card. Read-only once sealed.
 2. Clinton's tools, listed below. Each tool does one job. None of them send.
 
-Put the tools in `rose_rocket_v2.5/shelf/`. Add `rose_rocket_v2.5/shelf/MANIFEST.md` with each tool's name, the one sentence Clinton would read, its inputs, and what it refuses to do. Implement them as plain Python functions a later supercute.fyi page can call. No network.
+Put the tools in `rose_rocket_v2.5/shelf/`. Add `rose_rocket_v2.5/shelf/MANIFEST.md` with each tool's name, the one sentence Clinton would read, its inputs, and what it refuses to do. Implement them as plain Python functions a later supercute.fyi page can call. No network. The directory name is not a Python package. Put `rose_rocket_v2.5` on `sys.path` and import `shelf.tools`.
 
 ## Clinton's tools
 

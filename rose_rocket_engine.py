@@ -1,8 +1,10 @@
 import json
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List
+from zoneinfo import ZoneInfo
 
 import google.generativeai as genai
 
@@ -15,6 +17,8 @@ FORCE_EDITION_ENV = "FORCE_EDITION"
 DRY_RUN_ENV = "DRY_RUN"
 OFFLINE_DRY_RUN_ENV = "OFFLINE_DRY_RUN"
 TODAYS_ISSUE_ENV = "TODAYS_ISSUE"
+DAY_SLATE_ENV = "DAY_SLATE"
+LA = ZoneInfo("America/Los_Angeles")
 OUTPUT_DIR = Path("output")
 MOCK_STORIES_PATH = Path("fixtures/mock_stories.json")
 
@@ -32,7 +36,7 @@ EDITION_ROUTING = {
 
 
 def _now_local() -> datetime:
-    return datetime.now()
+    return datetime.now(LA)
 
 
 def _today_utc() -> datetime:
@@ -205,6 +209,13 @@ def _save_dry_run_output(subject: str, body: str) -> Path:
 
 
 def run() -> None:
+    if _is_truthy_env(DAY_SLATE_ENV):
+        sys.path.insert(0, str(Path("rose_rocket_v2.5").resolve()))
+        from shelf.tools import day_slate
+
+        slate = day_slate(_now_local().date())
+        print(json.dumps(slate, indent=2))
+        return
     if _is_truthy_env(TODAYS_ISSUE_ENV):
         from todays_issue import render_issue
         body = render_issue(_now_local())

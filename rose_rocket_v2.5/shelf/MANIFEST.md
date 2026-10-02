@@ -17,14 +17,14 @@ Refuses to draft, polish from memory, or invent a personal section. An empty Mon
 ## source_drawer
 
 Clinton files a verified birthday list, music note, or research note.
-Inputs: kind, text, store directory.
-Refuses any other kind. An empty filing stores nothing.
+Inputs: kind, text, store directory, optional publication date for research.
+Refuses any other kind. An empty filing stores nothing. Research dated to one issue stays off later slates.
 
 ## check_copy
 
 Clinton checks the exact payload bytes.
 Inputs: payload bytes, optional publication date, optional rules directory.
-Refuses to seal. Names the line and the rule on failure. An empty line is legal. A line that begins with a space or a tab is not.
+Refuses to seal. Names the line and the rule on failure. An empty line is legal. A line that begins with a space or a tab is not. A music section without an approved trigger list fails even if the date is omitted. Credential checks are case-insensitive and also reject session cookies, booking-number phrases, and confirmation-code phrases.
 
 ## seal_copy
 

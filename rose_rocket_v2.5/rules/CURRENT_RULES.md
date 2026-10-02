@@ -20,7 +20,7 @@
 
 - Monday / Wednesday / Friday: Full AI Deep Dive.
 - Other days: Flexible / short AI desk.
-- Monday: Includes "FROM ME" (Clinton's personal section). Written by Clinton. The model may lightly polish it and must never ghostwrite from memory or inference.
+- Monday: Includes "FROM ME" only when Clinton supplies the text. Written by Clinton. The model may lightly polish it and must never ghostwrite from memory or inference. If Monday arrives with no text, omit FROM ME silently.
 - Thursday / Sunday: Includes "Birthdays" (weekly feature).
 - Special segments, one at a time, every 2.5 weeks. The clock starts Thursday, September 24, 2026. 2.5 weeks is 17 days and 12 hours. The segment is due on the America/Los_Angeles publication date that contains that moment.
   - Candy Market returns first, on Sunday, October 11, 2026.
@@ -37,8 +37,7 @@
 - Personal Truth: Never invent memories, feelings, relationship details, promises, plans, preferences, family details, or personal events.
 - Silent Omission: If a section is missing, not due, or lacks verified data, skip it completely and silently.
 - Ban on Production Chatter: Internal status terms (NOT DUE, SOURCE HOLD, NOT VERIFIED, OMITTED) belong in internal QA logs. Never publish system chatter to Marko.
-- Exception Report: At most one brief mention at the very end of an issue, and only if a materially expected feature was omitted. If nothing major is missing, omit the report entirely.
-- Omission Over Fabrication: A shorter paper with factual content is always preferred over filler.
+- Omission Over Fabrication: A shorter paper with factual content is always preferred over filler. Missing or unverified sections stay off the paper. Do not add an exception report about what was left off.
 - Do not let an internal evidence label sound stronger than it is. SOURCE_REPORTED is not INDEPENDENTLY_REVIEWED.
 
 ## QA, Sealing, and Delivery

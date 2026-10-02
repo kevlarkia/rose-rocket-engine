@@ -15,7 +15,21 @@ CHAR_CAP = 30000
 # Thursday, September 24, 2026. Two specials share a 5-week span, so each step is 17.5 days.
 SPECIAL_ANCHOR = date(2026, 9, 24)
 PRODUCTION_TERMS = ("NOT DUE", "SOURCE HOLD", "NOT VERIFIED", "OMITTED")
-CREDENTIAL_MARKERS = ("API_KEY", "PASSWORD", "BEGIN PRIVATE", "sk-", "token.json")
+CREDENTIAL_MARKERS = (
+    "api_key",
+    "api-key",
+    "password",
+    "begin private",
+    "sk-",
+    "token.json",
+    "sessionid",
+    "authorization: bearer",
+)
+SENSITIVE_PHRASES = (
+    "booking number",
+    "confirmation code",
+    "confirmation #",
+)
 ISSUE_176_DIR = "2026-09-23_176"
 TRIGGER_LIST_NAME = "SMARTINMATE_TRIGGER_WORDS.txt"
 
@@ -80,7 +94,9 @@ def day_slate(
         else:
             on_paper.append(section)
 
-    if str(held.get("research") or "").strip():
+    research_text = str(held.get("research") or "").strip()
+    research_for = held.get("research_date")
+    if research_text and (research_for is None or research_for == day):
         on_paper.append("Research")
 
     return {
@@ -145,17 +161,32 @@ def from_me(text: str, *, publication_date: date, store: Path) -> dict:
     return {"stored": True, "invented": False, "text": cleaned, "path": str(dest)}
 
 
-def source_drawer(kind: str, text: str, *, store: Path) -> dict:
+def source_drawer(
+    kind: str,
+    text: str,
+    *,
+    store: Path,
+    publication_date: Optional[date] = None,
+) -> dict:
     """File a verified birthday list, music note, or research note."""
     if kind not in {"birthdays", "music", "research"}:
         raise ValueError("kind must be birthdays, music, or research")
     body = text if isinstance(text, str) else ""
-    dest = Path(store) / "drawer" / f"{kind}.txt"
+    if kind == "research" and publication_date is not None:
+        dest = Path(store) / "drawer" / f"research-{publication_date.isoformat()}.txt"
+    else:
+        dest = Path(store) / "drawer" / f"{kind}.txt"
     if not body.strip():
         return {"stored": False, "kind": kind, "text": ""}
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(body, encoding="ascii")
-    return {"stored": True, "kind": kind, "text": body, "path": str(dest)}
+    return {
+        "stored": True,
+        "kind": kind,
+        "text": body,
+        "path": str(dest),
+        "publication_date": publication_date.isoformat() if publication_date else None,
+    }
 
 
 def check_copy(
@@ -180,8 +211,9 @@ def check_copy(
         at = text.find(term)
         if at != -1:
             return CheckResult(False, _line_number(data, at), "silent omission", chars)
-    music_line = _music_line(text)
-    if publication_date is not None and publication_date.weekday() == 4 and music_line is not None:
+    music = _music_span(text)
+    if music is not None:
+        music_line, music_body = music
         trigger_path = _trigger_list_path(rules_dir)
         if not trigger_path.is_file():
             return CheckResult(False, music_line, "Friday music has no approved trigger list", chars)
@@ -191,11 +223,18 @@ def check_copy(
             if item.strip()
         ]
         for word in triggers:
-            at = text.find(word)
-            if word and at != -1:
-                return CheckResult(False, _line_number(data, at), "Friday music trigger word", chars)
+            if word and word in music_body:
+                at = music_body.find(word)
+                prefix = "\n".join(text.splitlines()[: music_line - 1])
+                offset = (len(prefix) + 1 if prefix else 0) + at
+                return CheckResult(False, _line_number(data, offset), "Friday music trigger word", chars)
+    folded = text.casefold()
     for marker in CREDENTIAL_MARKERS:
-        at = text.find(marker)
+        at = folded.find(marker.casefold())
+        if at != -1:
+            return CheckResult(False, _line_number(data, at), "credentials", chars)
+    for phrase in SENSITIVE_PHRASES:
+        at = folded.find(phrase)
         if at != -1:
             return CheckResult(False, _line_number(data, at), "credentials", chars)
     return CheckResult(True, None, "QA VALIDATED_READY", chars)
@@ -212,11 +251,35 @@ def _line_number(data: bytes, offset: int) -> int:
     return data[:offset].count(b"\n") + 1
 
 
-def _music_line(text: str) -> Optional[int]:
-    for index, line in enumerate(text.splitlines(), start=1):
-        if line == "MUSIC" or line.startswith("MUSIC "):
-            return index
-    return None
+def _is_music_heading(line: str) -> bool:
+    stripped = line.strip()
+    upper = stripped.upper()
+    if upper == "MUSIC" or upper.startswith("MUSIC ") or upper.startswith("MUSIC:"):
+        return True
+    compact = "".join(ch for ch in stripped if ch.isalnum())
+    return compact.upper() == "MUSIC"
+
+
+def _is_section_break(line: str) -> bool:
+    stripped = line.strip()
+    return stripped.startswith("= = = =") or stripped.startswith("====")
+
+
+def _music_span(text: str) -> Optional[tuple]:
+    lines = text.splitlines()
+    start = None
+    for index, line in enumerate(lines):
+        if _is_music_heading(line):
+            start = index
+            break
+    if start is None:
+        return None
+    collected = [lines[start]]
+    for line in lines[start + 1 :]:
+        if _is_section_break(line):
+            break
+        collected.append(line)
+    return start + 1, "\n".join(collected)
 
 
 def seal_copy(
@@ -333,6 +396,8 @@ def rule_slip(proposed: str, *, rules_path: Path, proposals_dir: Path) -> dict:
     if conflict:
         return {"applied": False, "conflict": conflict, "rules_changed": False}
     dest = Path(proposals_dir) / "rule_slip.txt"
+    if dest.resolve() == Path(rules_path).resolve():
+        return {"applied": False, "conflict": "proposal path equals rules_path", "rules_changed": False}
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(text, encoding="utf-8")
     rules_before = Path(rules_path).read_text(encoding="utf-8") if Path(rules_path).exists() else ""
@@ -355,4 +420,15 @@ def _rule_conflict(text: str) -> Optional[str]:
         return "flush-left"
     if any(phrase in lowered for phrase in ("unicode is allowed", "emoji is allowed")):
         return "7-bit ASCII"
+    if any(
+        phrase in lowered
+        for phrase in (
+            "automatically send",
+            "automatic sending",
+            "auto send",
+            "send after sealing",
+            "send automatically",
+        )
+    ):
+        return "human send gate"
     return None

@@ -64,7 +64,7 @@ Accepts text Clinton typed. Stores it for a Monday issue. Refuses to draft, poli
 
 ### source_drawer
 
-Accepts a verified birthday list, a music note, or a research note that Clinton files. The paper may use only what is in the drawer. An empty drawer means that section is absent from the payload.
+Accepts a verified birthday list, a music note, or a research note that Clinton files. Research may carry a publication date so it does not float onto every later slate. The paper may use only what is in the drawer. An empty drawer means that section is absent from the payload.
 
 ### check_copy
 
@@ -76,8 +76,8 @@ Checks, in order:
 2. No line begins with a space or a tab. A completely empty line is legal. Issue 176 uses empty lines and is already `VALIDATED_READY`. `PROMPT_QA_CHECK.txt` item 2 says every line must start with a visible character. That sentence is wrong for this paper. Follow the standing rule.
 3. Byte length is strictly under 30,000.
 4. The payload does not contain `NOT DUE`, `SOURCE HOLD`, `NOT VERIFIED`, or `OMITTED`.
-5. On Friday, if music text is present and the trigger list exists, reject a listed trigger word. If the trigger list does not exist, reject a payload that contains a music section.
-6. No credential material: no `API_KEY`, `PASSWORD`, `BEGIN PRIVATE`, `sk-`, or `token.json`.
+5. If a music section is present, search trigger words only inside that section. Headings `MUSIC`, `Music:`, and spaced `MUSIC` all count. If the trigger list does not exist, reject the payload. Do not wait for `publication_date` to be passed.
+6. No credential material, case-insensitive: `API_KEY`, `PASSWORD`, `BEGIN PRIVATE`, `sk-`, `token.json`, `sessionid`, `Authorization: Bearer`, plus the phrases `booking number`, `confirmation code`, and `confirmation #`.
 
 ### seal_copy
 
@@ -100,7 +100,7 @@ Stores feedback Clinton types in from Marko. Confirms what would change in later
 
 ### rule_slip
 
-Takes a rule Clinton wants added. Checks it against the 30,000-character cap, 7-bit ASCII, and flush-left. If it conflicts, say so and do not change the rules. If it does not conflict, write the proposed text beside the current rules and wait. Do not apply it. Do not generate an issue.
+Takes a rule Clinton wants added. Checks it against the 30,000-character cap, 7-bit ASCII, flush-left, and the human-send gate. If the proposal path would overwrite the standing rules file, refuse. If it conflicts, say so and do not change the rules. If it does not conflict, write the proposed text beside the current rules and wait. Do not apply it. Do not generate an issue.
 
 ## Tests
 
@@ -112,8 +112,10 @@ Use `unittest`. No network.
 - A 30,000-byte payload fails. 29,999 passes the length check.
 - A non-ASCII byte fails.
 - `day_slate` for Wednesday 2026-09-23 includes the full AI Deep Dive and does not include FROM ME.
-- `day_slate` for Monday 2026-09-28 includes FROM ME and the full AI Deep Dive.
-- `day_slate` for Thursday 2026-09-24 includes Birthdays.
+- `day_slate` for Monday 2026-09-28, with supplied FROM ME text, includes FROM ME and the full AI Deep Dive.
+- `day_slate` for Thursday 2026-09-24, with a verified birthday list, includes Birthdays.
+- `day_slate` for Thursday 2026-10-01 includes the short AI desk and leaves Candy Market and Workout/Fitness off the paper.
+- `day_slate` for Friday 2026-10-02 includes the full AI Deep Dive and leaves Music, Candy Market, and Workout/Fitness off the paper.
 - `day_slate` for Friday 2026-09-25 includes the full AI Deep Dive and leaves Music and Workout off the paper.
 - `seal_copy` refuses to write `rose_rocket_v2.5/archive/2026-09-23_176/` again.
 - `from_me` with an empty Monday stores nothing and does not invent a letter.

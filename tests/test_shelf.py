@@ -87,14 +87,43 @@ class ShelfTests(unittest.TestCase):
         self.assertNotIn("FROM ME", " ".join(slate["left_off"]))
 
     def test_monday_slate(self):
-        slate = day_slate(date(2026, 9, 28))
+        slate = day_slate(date(2026, 9, 28), from_me_text="A filed Monday letter.")
         self.assertIn("FROM ME", slate["owed"])
+        self.assertIn("FROM ME", slate["on_paper"])
         self.assertIn("full AI Deep Dive", slate["on_paper"])
 
     def test_thursday_slate(self):
-        slate = day_slate(date(2026, 9, 24))
-        named = slate["owed"] + slate["on_paper"] + slate["left_off"]
-        self.assertTrue(any("Birthdays" in item for item in named))
+        slate = day_slate(date(2026, 9, 24), drawer={"birthdays": "A verified list."})
+        self.assertIn("Birthdays", slate["on_paper"])
+
+    def test_thursday_oct_1_is_short_desk(self):
+        slate = day_slate(date(2026, 10, 1))
+        self.assertEqual(slate["weekday"], "Thursday")
+        self.assertIn("short AI desk", slate["on_paper"])
+        self.assertNotIn("full AI Deep Dive", slate["on_paper"])
+        self.assertNotIn("Candy Market", slate["on_paper"])
+        self.assertNotIn("Workout/Fitness", slate["on_paper"])
+        self.assertNotIn("Music", slate["on_paper"])
+
+    def test_friday_oct_2_leaves_music_and_specials_off(self):
+        slate = day_slate(date(2026, 10, 2))
+        self.assertEqual(slate["weekday"], "Friday")
+        self.assertIn("full AI Deep Dive", slate["on_paper"])
+        self.assertNotIn("Music", slate["on_paper"])
+        self.assertNotIn("Candy Market", slate["on_paper"])
+        self.assertNotIn("Workout/Fitness", slate["on_paper"])
+
+    def test_research_does_not_float_to_other_days(self):
+        filed = day_slate(
+            date(2026, 10, 2),
+            drawer={"research": "A filed note.", "research_date": date(2026, 9, 23)},
+        )
+        self.assertNotIn("Research", filed["on_paper"])
+        same = day_slate(
+            date(2026, 9, 23),
+            drawer={"research": "A filed note.", "research_date": date(2026, 9, 23)},
+        )
+        self.assertIn("Research", same["on_paper"])
 
     def test_friday_leaves_music_and_workout_off_the_paper(self):
         slate = day_slate(date(2026, 9, 25))
@@ -163,6 +192,72 @@ class ShelfTests(unittest.TestCase):
             state = json.loads(raw)
             self.assertEqual(state["current_state"], "VALIDATED_READY")
             self.assertNotEqual(state["current_state"], "SENT_TO_MARKO")
+
+    def test_lowercase_password_does_not_seal(self):
+        result = check_copy(b"password=hunter2\n")
+        self.assertFalse(result.passed)
+        self.assertEqual(result.rule, "credentials")
+
+    def test_sessionid_does_not_seal(self):
+        result = check_copy(b"sessionid=abc123\n")
+        self.assertFalse(result.passed)
+        self.assertEqual(result.rule, "credentials")
+
+    def test_music_without_trigger_list_fails_even_without_date(self):
+        result = check_copy(b"Hello.\nMUSIC\nsafe lyrics\n")
+        self.assertFalse(result.passed)
+        self.assertEqual(result.rule, "Friday music has no approved trigger list")
+
+    def test_music_heading_variants_are_seen(self):
+        for heading in (b"Music:\n", b"MUSIC\n", b"[ M   U   S   I   C ]\n"):
+            result = check_copy(b"Hello.\n" + heading + b"safe lyrics\n")
+            self.assertFalse(result.passed, heading)
+            self.assertEqual(result.rule, "Friday music has no approved trigger list")
+
+    def test_trigger_word_is_only_sought_in_music(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rules = Path(tmp)
+            (rules / "SMARTINMATE_TRIGGER_WORDS.txt").write_text("blade\n", encoding="ascii")
+            news = check_copy(
+                b"The news desk mentions a blade server.\n",
+                publication_date=date(2026, 10, 2),
+                rules_dir=rules,
+            )
+            self.assertTrue(news.passed)
+            lyrics = check_copy(
+                b"MUSIC\nThe blade in the chorus.\n",
+                publication_date=date(2026, 10, 2),
+                rules_dir=rules,
+            )
+            self.assertFalse(lyrics.passed)
+            self.assertEqual(lyrics.rule, "Friday music trigger word")
+
+    def test_rule_slip_rejects_auto_send(self):
+        rules = ROOT / "rose_rocket_v2.5/rules/CURRENT_RULES.md"
+        before = rules.read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            result = rule_slip(
+                "automatically send after sealing",
+                rules_path=rules,
+                proposals_dir=Path(tmp),
+            )
+            self.assertFalse(result["applied"])
+            self.assertEqual(result["conflict"], "human send gate")
+            self.assertEqual(list(Path(tmp).iterdir()), [])
+        self.assertEqual(rules.read_text(encoding="utf-8"), before)
+
+    def test_rule_slip_refuses_to_overwrite_standing_rules(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            rules = Path(tmp) / "rule_slip.txt"
+            rules.write_text("standing\n", encoding="utf-8")
+            result = rule_slip(
+                "A harmless shelf note.",
+                rules_path=rules,
+                proposals_dir=Path(tmp),
+            )
+            self.assertFalse(result["applied"])
+            self.assertEqual(result["conflict"], "proposal path equals rules_path")
+            self.assertEqual(rules.read_text(encoding="utf-8"), "standing\n")
 
     def test_rule_slip_does_not_edit_standing_rules(self):
         rules = ROOT / "rose_rocket_v2.5/rules/CURRENT_RULES.md"

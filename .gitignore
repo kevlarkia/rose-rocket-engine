@@ -27,3 +27,11 @@ token.json
 .vscode/
 .idea/
 .DS_Store
+
+# Review desk runtime logs
+output/feedback/*
+!output/feedback/.gitkeep
+output/escalations/*
+!output/escalations/.gitkeep
+output/handoff/*
+!output/handoff/.gitkeep

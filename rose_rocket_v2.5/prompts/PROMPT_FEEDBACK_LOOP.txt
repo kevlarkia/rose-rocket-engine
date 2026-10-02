@@ -1,0 +1,13 @@
+ROSE ROCKET — FEEDBACK & EDITORIAL ADJUSTMENT
+
+Marko has provided feedback regarding recent issues of Rose Rocket.
+Analyze this feedback and adjust system internal constraints and future drafting behavior accordingly.
+
+FEEDBACK RECEIVED:
+[Insert Marko's feedback here]
+
+INSTRUCTIONS FOR AI:
+1. Confirm understanding of feedback.
+2. State exact changes to future drafting behavior.
+3. If feedback requires a permanent change to CURRENT_RULES.md, draft the exact text update for Clinton's approval.
+4. Do NOT generate a new newspaper issue. Update internal logic only.

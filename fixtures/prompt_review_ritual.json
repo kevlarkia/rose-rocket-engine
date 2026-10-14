@@ -1,0 +1,12 @@
+{
+  "title": "Weekly prompt review",
+  "weekday": "Monday",
+  "time_local": "09:00",
+  "duration_minutes": 30,
+  "agenda": [
+    "Read output/feedback/feedback.jsonl since the previous Monday.",
+    "Group every note in What was missing.",
+    "Adjust the planner success criteria or the executor prompt.",
+    "Confirm classify and plan stay on the fast tier, and synthesis stays on the premium tier."
+  ]
+}

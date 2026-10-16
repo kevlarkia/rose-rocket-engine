@@ -1,0 +1,24 @@
+{
+  "issue": 176,
+  "date": "2026-09-23",
+  "edition": "HUMP DAY DISPATCH",
+  "recipient": "Marko",
+  "archive_status": "VALIDATED_READY",
+  "staging_status": "SMARTINMATE_REQUIRES_HUMAN",
+  "send_status": "NOT_SENT",
+  "state_machine": {
+    "VALIDATED_READY": "passed QA, sealed, not staged",
+    "STAGED_FOR_DELIVERY": "loaded into the SmartInmate UI, not sent",
+    "SENT_TO_MARKO": "requires evidence of transmission"
+  },
+  "current_state": "VALIDATED_READY",
+  "human_send_gate": "intact",
+  "actions_not_taken": [
+    "login",
+    "recipient_selection",
+    "composer_staging",
+    "credit_transaction",
+    "send"
+  ],
+  "reason": "No authenticated interactive Smart Communications/SmartInmate browser or connector is exposed in this run."
+}

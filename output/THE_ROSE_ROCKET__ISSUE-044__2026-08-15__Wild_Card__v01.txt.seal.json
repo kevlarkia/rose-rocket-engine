@@ -1,0 +1,19 @@
+{
+  "file": "THE_ROSE_ROCKET__ISSUE-044__2026-08-15__Wild_Card__v01.txt",
+  "sha256": "352a0f60fd315200b6d1c474cfc54ed5bcce4ec16d889e67558721202e704b54",
+  "bytes": 26167,
+  "chars": 26167,
+  "issue": 44,
+  "edition": "Wild Card / ALTality SpellBound Special / AI Longform Lab",
+  "date": "2026-08-15",
+  "timezone": "America/Los_Angeles",
+  "sealed_at": "2026-08-16T04:19:40.735246+00:00",
+  "pipeline": "Rose Rocket Build SOP v1.1 + AI_WEEKLY_RHYTHM_v1",
+  "recipient_overrides": [
+    "no candy",
+    "no workouts",
+    "no from your person",
+    "daily AI brief",
+    "weekly AI deep dive rotation"
+  ]
+}

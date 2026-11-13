@@ -10,6 +10,9 @@ import json
 from datetime import date, datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+from zoneinfo import ZoneInfo
+
+LA = ZoneInfo("America/Los_Angeles")
 
 CALENDAR_PATH = Path("fixtures/life_calendar.json")
 AFFIRMATIONS_PATH = Path("fixtures/affirmations.json")
@@ -79,7 +82,12 @@ def countdown_line(day: date, calendar: Optional[Dict] = None) -> str:
 
 
 def render_issue(now: Optional[datetime] = None) -> str:
-    now = now or datetime.now()
+    if now is None:
+        now = datetime.now(LA)
+    elif now.tzinfo is None:
+        now = now.replace(tzinfo=LA)
+    else:
+        now = now.astimezone(LA)
     day = now.date()
     cal = load_calendar()
     aff = load_affirmations()
@@ -97,6 +105,12 @@ def render_issue(now: Optional[datetime] = None) -> str:
 
     weather = cal.get("weather_today") or "Roseville. Check the sky yourself."
     from_person = cal.get("from_your_person") or "[CLINTON WRITES THIS]"
+    sky = cal.get("sky_note") or (
+        "The date on the board is a status call,\n"
+        "not a finish line. Hold the page.\n"
+        "Lucky color: bone-cream\n"
+        "Lucky move: one true line"
+    )
 
     sched_lines = []
     if upcoming:
@@ -117,7 +131,7 @@ def render_issue(now: Optional[datetime] = None) -> str:
             THE ROSE ROCKET
             Today's Issue
 ========================================
-  Friday Morning Paper
+  {day.strftime('%A')} Morning Paper
   {day.strftime('%A, %B %-d, %Y')}
   Lane: TODAYS_ISSUE
 ========================================
@@ -148,11 +162,7 @@ FROM YOUR PERSON
 
 ----------------------------------------
 SKY NOTE
-The letter landed. The week is visits,
-a package window, and a court date that
-is a status call, not a finish line.
-Lucky color: bone-cream
-Lucky move: one true line
+{sky}
 
 ----------------------------------------
   The paper still finds you.
